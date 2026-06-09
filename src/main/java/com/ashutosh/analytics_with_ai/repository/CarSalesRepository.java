@@ -1,0 +1,50 @@
+package com.ashutosh.analytics_with_ai.repository;
+
+import com.ashutosh.analytics_with_ai.Entity.CarSales;
+import com.ashutosh.analytics_with_ai.dto.MonthlyCountDTO;
+import com.ashutosh.analytics_with_ai.dto.WeeklyCountDTO;
+import com.ashutosh.analytics_with_ai.dto.YearlyCountDTO;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface CarSalesRepository extends JpaRepository<CarSales,Long> {
+
+    boolean existsByCarNumber(String carNumber);
+
+    @Query("""
+            Select new com.ashutosh.analytics_with_ai.dto.YearlyCountDTO(c.year, count(c))
+            from CarSales c
+            Group by c.year
+            Order by c.year
+            """)
+    List<YearlyCountDTO> getYearlyCount();
+
+    @Query("""
+            SELECT new com.ashutosh.analytics_with_ai.dto.MonthlyCountDTO(
+                MONTH(c.dateofPurchase), 
+                COUNT(c)
+            )
+            FROM CarSales c
+            WHERE YEAR(c.dateofPurchase) = :year
+            GROUP BY MONTH(c.dateofPurchase)
+            ORDER BY MONTH(c.dateofPurchase)
+            """)
+    List<MonthlyCountDTO> getMonthlyCountByYear(@Param("year") int year);
+
+    @Query("""
+            SELECT NEW com.ashutosh.analytics_with_ai.dto.WeeklyCountDTO(CAST((EXTRACT(DAY FROM c.dateofPurchase) - 1) / 7 + 1 AS int), COUNT(c))
+            FROM CarSales c
+            WHERE EXTRACT(YEAR FROM c.dateofPurchase) = :year
+            AND EXTRACT(MONTH FROM c.dateofPurchase) = :month
+            GROUP BY CAST((EXTRACT(DAY FROM c.dateofPurchase) - 1) / 7 + 1 AS int)
+            ORDER BY CAST((EXTRACT(DAY FROM c.dateofPurchase) - 1) / 7 + 1 AS int)""")
+    List<WeeklyCountDTO> findWeekOfMonthSalesCount(
+            @Param("year") int year,
+            @Param("month") int month
+    );
+}
