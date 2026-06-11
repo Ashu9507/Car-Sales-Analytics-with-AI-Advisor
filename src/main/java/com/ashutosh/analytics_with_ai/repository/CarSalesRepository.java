@@ -37,14 +37,18 @@ public interface CarSalesRepository extends JpaRepository<CarSales,Long> {
     List<MonthlyCountDTO> getMonthlyCountByYear(@Param("year") int year);
 
     @Query("""
-            SELECT NEW com.ashutosh.analytics_with_ai.dto.WeeklyCountDTO(CAST((EXTRACT(DAY FROM c.dateofPurchase) - 1) / 7 + 1 AS int), COUNT(c))
-            FROM CarSales c
-            WHERE EXTRACT(YEAR FROM c.dateofPurchase) = :year
-            AND EXTRACT(MONTH FROM c.dateofPurchase) = :month
-            GROUP BY CAST((EXTRACT(DAY FROM c.dateofPurchase) - 1) / 7 + 1 AS int)
-            ORDER BY CAST((EXTRACT(DAY FROM c.dateofPurchase) - 1) / 7 + 1 AS int)""")
-    List<WeeklyCountDTO> findWeekOfMonthSalesCount(
-            @Param("year") int year,
-            @Param("month") int month
-    );
+        SELECT NEW com.ashutosh.analytics_with_ai.dto.WeeklyCountDTO(
+            CAST(COALESCE((EXTRACT(DAY FROM c.dateofPurchase) - 1) / 7 + 1, 1) AS int), 
+            COUNT(c)
+        )
+        FROM CarSales c
+        WHERE EXTRACT(YEAR FROM c.dateofPurchase) = :year
+          AND EXTRACT(MONTH FROM c.dateofPurchase) = :month
+        GROUP BY CAST(COALESCE((EXTRACT(DAY FROM c.dateofPurchase) - 1) / 7 + 1, 1) AS int)
+        ORDER BY CAST(COALESCE((EXTRACT(DAY FROM c.dateofPurchase) - 1) / 7 + 1, 1) AS int)
+       """)
+List<WeeklyCountDTO> findWeekOfMonthSalesCount(
+        @Param("year") int year,
+        @Param("month") int month
+);
 }
