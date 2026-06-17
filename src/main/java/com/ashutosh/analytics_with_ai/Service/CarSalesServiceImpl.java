@@ -115,13 +115,13 @@ public class CarSalesServiceImpl implements CarSalesService{
 
     @Override
     public List<MonthlyCountDTO> getMontlyCarsCount(int year) {
-        List<MonthlyCountDTO> data = carSalesRepository.getMonthlyCountByYear(year);
+        List<Object[]> rows = carSalesRepository.getMonthlyCountByYear(year);
 
-        Map<Integer, Long> map = data.stream()
-                .collect(Collectors.toMap(
-                   MonthlyCountDTO::month,
-                   MonthlyCountDTO::count
-                ));
+        Map<Integer, Long> map = rows.stream()
+            .collect(Collectors.toMap(
+                r -> ((Number) r[0]).intValue(),
+                r -> ((Number) r[1]).longValue()
+        ));
 
         List<MonthlyCountDTO> result = new ArrayList<>();
 
