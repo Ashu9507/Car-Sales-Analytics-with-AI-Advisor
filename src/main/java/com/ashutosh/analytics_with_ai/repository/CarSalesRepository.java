@@ -24,17 +24,17 @@ public interface CarSalesRepository extends JpaRepository<CarSales,Long> {
             """)
     List<YearlyCountDTO> getYearlyCount();
 
-@Query(value = """
-    SELECT
-        MONTH(date_of_purchase) as month,
-        COUNT(*) as count
-    FROM car_sales
-    WHERE year = :year
-    GROUP BY MONTH(date_of_purchase)
-    ORDER BY MONTH(date_of_purchase)
-    """,
-    nativeQuery = true)
-List<Object[]> getMonthlyCountByYear(@Param("year") int year);
+@Query("""
+    SELECT new com.ashutosh.analytics_with_ai.dto.MonthlyCountDTO(
+        MONTH(c.dateofPurchase),
+        COUNT(c)
+    )
+    FROM CarSales c
+    WHERE c.year = :year
+    GROUP BY MONTH(c.dateofPurchase)
+    ORDER BY MONTH(c.dateofPurchase)
+    """)
+List<MonthlyCountDTO> getMonthlyCountByYear(@Param("year") int year);
 
     @Query("""
         SELECT NEW com.ashutosh.analytics_with_ai.dto.WeeklyCountDTO(
