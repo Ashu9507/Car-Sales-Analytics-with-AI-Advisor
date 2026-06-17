@@ -34,7 +34,7 @@ public interface CarSalesRepository extends JpaRepository<CarSales,Long> {
     ORDER BY MONTH(date_of_purchase)
     """,
     nativeQuery = true)
-List<Object[]> getMonthlyCountByYearNative(@Param("year") int year);
+List<Object[]> getMonthlyCountByYear(@Param("year") int year);
 
     @Query("""
         SELECT NEW com.ashutosh.analytics_with_ai.dto.WeeklyCountDTO(
