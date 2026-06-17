@@ -15,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/car_sales")
+@CrossOrigin(origins = "{https://car-sales-analytics-dashboard-ai.streamlit.app}")
 public class CarSalesController {
 
     private final CarSalesService salesService;
